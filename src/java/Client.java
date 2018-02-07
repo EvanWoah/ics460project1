@@ -32,7 +32,7 @@ private void runWork() {
 
         System.out.println("Enter a file in src to send to server: " );
         //String filePath = inFromUser.nextLine();
-        String filePath = "/Users/evanwall/Desktop/ICS460/proj1/ics460project1/fileToSend.txt";
+        String filePath = "fileToSend.txt";
     
         // convert file to byte[]
         byte[] bFile = _fileSplitter.readBytesFromFile(filePath);
