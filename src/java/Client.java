@@ -1,8 +1,6 @@
 import java.io.*;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 
 
@@ -10,7 +8,10 @@ public class Client {
     private final static int PORT = 13;
     private static final String HOSTNAME = "localhost";
     private FileSplitter _fileSplitter = new FileSplitter();
-    
+    private DatagramSocket clientSocket;
+    private Scanner inFromUser;
+    private InetAddress IPAddress;
+
    public Client() {
        Runnable r = new Runnable() {
            @Override
@@ -22,43 +23,48 @@ public class Client {
        t.start();
     }
 private void runWork() {
-    try (DatagramSocket socket = new DatagramSocket()) {
-        System.out.print("CLIENT: ");
-        Scanner inFromUser = new Scanner(System.in);
-        DatagramSocket clientSocket = new DatagramSocket();
-        InetAddress IPAddress = InetAddress.getByName(HOSTNAME);
+    try {
+        System.out.print("---------------------CLIENT: ");
+        inFromUser = new Scanner(System.in);
+        clientSocket = new DatagramSocket();
+
+        IPAddress = InetAddress.getByName(HOSTNAME);
+
         byte[] sendData = new byte[1024];
         byte[] receiveData = new byte[1024];
 
-        System.out.println("Enter a file in src to send to server: " );
-        //String filePath = inFromUser.nextLine();
-        String filePath = "fileToSend.txt";
-    
+        //could try and fix this to be more generic, maybe first file in folder?
+        String filePath = "C:\\Users\\Brice\\git\\ics460project1\\src\\fileToSend";
+
         // convert file to byte[]
         byte[] bFile = _fileSplitter.readBytesFromFile(filePath);
 
-        //java nio
-        //byte[] bFile = Files.readAllBytes(new File("C:\\temp\\testing1.txt").toPath());
-        //byte[] bFile = Files.readAllBytes(Paths.get("C:\\temp\\testing1.txt"));
-
         // save byte[] into a file
-        Path path = Paths.get("C:\temp\\test2.txt");
+        Path path = Paths.get("C:\\Users\\Brice\\git\\ics460project1\\test2");
         Files.write(path, bFile);
 
         System.out.println("Done");
-
+        System.out.println("Processed File: " + filePath);
         //Print bytes[]
-        for (int i = 0; i < bFile.length; i++) {
-            sendData = bFile;
-            DatagramPacket sendPacket =
-                new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
-            clientSocket.send(sendPacket);
-            DatagramPacket receivePacket =
-                new DatagramPacket(receiveData, receiveData.length);
-            clientSocket.receive(receivePacket);
-            String modifiedSentence = new String(receivePacket.getData());
+        sendData = bFile.clone();
+
+        //TODO find a way to reliably split a file of unknown size into 12
+        //separate "chunks" and have the concatenate at the server
+        System.out.println(bFile.length/12);
+
+        DatagramPacket sendPacket =
+            new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
+
+        clientSocket.send(sendPacket);
+
+        DatagramPacket receivePacket =
+            new DatagramPacket(receiveData, receiveData.length);
+
+        clientSocket.receive(receivePacket);
+
+        String modifiedSentence = new String(receivePacket.getData());
             System.out.println("CLIENT: FROM SERVER:" + modifiedSentence);
-        }
+
         clientSocket.close();
     } catch ( IOException ex ) {
         ex.printStackTrace();
