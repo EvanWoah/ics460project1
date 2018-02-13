@@ -1,6 +1,4 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 
 // source https://www.mkyong.com/java/how-to-convert-file-into-an-array-of-bytes/
@@ -12,6 +10,7 @@ public class FileSplitter {
         byte[] bytesArray = null;
 
         try {
+
 
             File file = new File(filePath);
             bytesArray = new byte[(int) file.length()];
