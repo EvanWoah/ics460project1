@@ -9,7 +9,7 @@ public class Client {
     private static final String HOSTNAME = "localhost";
     private FileSplitter _fileSplitter = new FileSplitter();
     private DatagramSocket clientSocket;
-    private Scanner inFromUser;
+    private Scanner inFromUser = new Scanner(System.in);
     private InetAddress IPAddress;
 
    public Client() {
@@ -25,7 +25,7 @@ public class Client {
 private void runWork() {
     try {
         System.out.print("---------------------CLIENT: ");
-        inFromUser = new Scanner(System.in);
+
         clientSocket = new DatagramSocket();
 
         IPAddress = InetAddress.getByName(HOSTNAME);
@@ -33,14 +33,14 @@ private void runWork() {
         byte[] sendData = new byte[1024];
         byte[] receiveData = new byte[1024];
 
-        //could try and fix this to be more generic, maybe first file in folder?
-        String filePath = "C:\\Users\\Brice\\git\\ics460project1\\src\\fileToSend";
+        //This is going to be passed in through args when starting the program
+        String filePath = "MetropolitanStateUniversityLogo.jpg";
 
         // convert file to byte[]
         byte[] bFile = _fileSplitter.readBytesFromFile(filePath);
 
         // save byte[] into a file
-        Path path = Paths.get("C:\\Users\\Brice\\git\\ics460project1\\test2");
+        Path path = Paths.get("receiveFile");
         Files.write(path, bFile);
 
         System.out.println("Done");
@@ -50,12 +50,34 @@ private void runWork() {
 
         //TODO find a way to reliably split a file of unknown size into 12
         //separate "chunks" and have the concatenate at the server
-        System.out.println(bFile.length/12);
+        byte[] buffer = new byte[1036];
+        int dataLength;
+        FileInputStream fis = new FileInputStream(filePath);
 
-        DatagramPacket sendPacket =
-            new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
+        int packetNum = 0;
 
-        clientSocket.send(sendPacket);
+        while(fis.available() != 0) {
+            try {
+                dataLength = fis.read(buffer, 12, 1024);
+
+                DatagramPacket sendPacket =
+                    new DatagramPacket(buffer, 1036, IPAddress, PORT);
+
+
+
+                try {
+                    System.out.println("Sending packet: " + packetNum);
+                    clientSocket.send(sendPacket);
+                    packetNum++;
+                }catch(IOException io) {
+                    System.err.println("Error in sending packet");
+                }
+
+            }catch (IOException e) {
+                System.err.println("Error in reading file");
+            }
+        }
+
 
         DatagramPacket receivePacket =
             new DatagramPacket(receiveData, receiveData.length);

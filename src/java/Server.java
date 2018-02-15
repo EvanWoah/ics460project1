@@ -27,19 +27,29 @@ public class Server {
                     DatagramPacket request = new DatagramPacket(receiveData, receiveData.length);
                     socket.receive(request);
 
-                    String sentence = new String(request.getData());
-                    System.out.println("SERVER: Packet Received: " + sentence);
+                    int dataLength = 1024;
+
+                    FileOutputStream fos = new FileOutputStream("receiveFile.jpg");
+
+                    try {
+                        fos.write(receiveData,12, dataLength);
+                    }catch(IOException e) {
+                        System.err.println("Error in writing to file from stream");
+                    }
+
+                    //String sentence = new String(request.getData());
+                    //System.out.println("SERVER: Packet Received: " + sentence);
 
                     InetAddress IPAddress = request.getAddress();
                     int port  = request.getPort();
-
+                    /*
                     String upperSentence = sentence.toUpperCase();
 
                     sendData = upperSentence.getBytes();
 
                     DatagramPacket response = new DatagramPacket(sendData, sendData.length, IPAddress, port);
                     socket.send(response);
-
+                    */
                 }catch(Exception ex){ //TODO, catch specific exception types IOException | RuntimeException
                     errors.log(Level.SEVERE, ex.getMessage(), ex);
                 }
