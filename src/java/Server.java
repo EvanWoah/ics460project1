@@ -6,6 +6,7 @@ public class Server {
 	private final static int PORT = 9876;
 	private final static Logger audit = Logger.getLogger("requests", null);
 	private final static Logger errors = Logger.getLogger("errors", null);
+	private DatagramSocket serverSocket;
 
 	public Server() {
 	    Runnable r = new Runnable() {
@@ -20,19 +21,22 @@ public class Server {
 	private void runWork() {
 	    byte[] receiveData = new byte[1024];
         byte[] sendData = new byte[1024];
-        try (DatagramSocket socket = new DatagramSocket(PORT)){
+
+        try {
+            serverSocket = new DatagramSocket(PORT);
+            FileOutputStream fos = new FileOutputStream("receiveFile.jpg");
+
             while (true) {
                 try {
-
                     DatagramPacket request = new DatagramPacket(receiveData, receiveData.length);
-                    socket.receive(request);
+                    serverSocket.receive(request);
 
-                    int dataLength = 1024;
 
-                    FileOutputStream fos = new FileOutputStream("receiveFile.jpg");
+
+                    //TODO info on packet offsets and packet info, IE packetnumbers and such
 
                     try {
-                        fos.write(receiveData,12, dataLength);
+                        fos.write(receiveData, 0, receiveData.length);
                     }catch(IOException e) {
                         System.err.println("Error in writing to file from stream");
                     }
@@ -40,8 +44,8 @@ public class Server {
                     //String sentence = new String(request.getData());
                     //System.out.println("SERVER: Packet Received: " + sentence);
 
-                    InetAddress IPAddress = request.getAddress();
-                    int port  = request.getPort();
+                    //InetAddress IPAddress = request.getAddress();
+                    //int port  = request.getPort();
                     /*
                     String upperSentence = sentence.toUpperCase();
 

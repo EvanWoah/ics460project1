@@ -1,18 +1,24 @@
 import java.io.*;
 import java.net.*;
-import java.nio.file.*;
 import java.util.*;
 
 
 public class Client {
-    private final static int PORT = 13;
+    private final static int PORT = 9876;
     private static final String HOSTNAME = "localhost";
-    private FileSplitter _fileSplitter = new FileSplitter();
     private DatagramSocket clientSocket;
     private Scanner inFromUser = new Scanner(System.in);
     private InetAddress IPAddress;
 
-   public Client() {
+    private DatagramPacket sendPacket;
+    private String filePath;
+
+    private byte[] buffer;
+    private byte[] receiveData;
+
+    private int packetSize = 1024;
+
+    public Client() {
        Runnable r = new Runnable() {
            @Override
            public void run() {
@@ -24,50 +30,31 @@ public class Client {
     }
 private void runWork() {
     try {
-        System.out.print("---------------------CLIENT: ");
-
         clientSocket = new DatagramSocket();
-
         IPAddress = InetAddress.getByName(HOSTNAME);
 
-        byte[] sendData = new byte[1024];
-        byte[] receiveData = new byte[1024];
+        receiveData = new byte[packetSize];
 
-        //This is going to be passed in through args when starting the program
-        String filePath = "MetropolitanStateUniversityLogo.jpg";
+        filePath = "fileToSend.txt";
 
-        // convert file to byte[]
-        byte[] bFile = _fileSplitter.readBytesFromFile(filePath);
+        buffer = new byte[packetSize];
 
-        // save byte[] into a file
-        Path path = Paths.get("receiveFile");
-        Files.write(path, bFile);
-
-        System.out.println("Done");
-        System.out.println("Processed File: " + filePath);
-        //Print bytes[]
-        sendData = bFile.clone();
-
-        //TODO find a way to reliably split a file of unknown size into 12
-        //separate "chunks" and have the concatenate at the server
-        byte[] buffer = new byte[1036];
-        int dataLength;
-        FileInputStream fis = new FileInputStream(filePath);
+        FileInputStream fis = new FileInputStream("MetropolitanStateUniversityLogo.jpg");
 
         int packetNum = 0;
 
         while(fis.available() != 0) {
+            System.out.println("Number of bytes left to send: " + fis.available());
             try {
-                dataLength = fis.read(buffer, 12, 1024);
 
-                DatagramPacket sendPacket =
-                    new DatagramPacket(buffer, 1036, IPAddress, PORT);
+               fis.read(buffer, 0, packetSize);
 
-
+               sendPacket = new DatagramPacket(buffer, packetSize, IPAddress, PORT);
 
                 try {
                     System.out.println("Sending packet: " + packetNum);
                     clientSocket.send(sendPacket);
+
                     packetNum++;
                 }catch(IOException io) {
                     System.err.println("Error in sending packet");
