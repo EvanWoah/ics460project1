@@ -31,10 +31,12 @@ public class Client {
     			clientSocket = new DatagramSocket();
 	        IPAddress = InetAddress.getByName(HOSTNAME);
 	        receiveData = new byte[packetSize];
-	        filePath = "fileToSend.txt";
+	        System.out.println("Relative filepath to file you want client to send to server?");
+	        filePath = inFromUser.nextLine();
 	        buffer = new byte[packetSize];
 	        int packetNum = 0;
-	        FileInputStream fis = new FileInputStream("MetropolitanStateUniversityLogo.jpg");
+	        
+	        FileInputStream fis = new FileInputStream(filePath);
 	        
 	        while(fis.available() != 0) {
 	            System.out.println("client- Number of bytes left to send: " + fis.available());
