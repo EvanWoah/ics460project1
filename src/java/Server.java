@@ -4,9 +4,10 @@ import java.util.logging.*;
 
 public class Server {
 	private final static int PORT = 9876;
-	private final static Logger audit = Logger.getLogger("requests", null);
+//	private final static Logger audit = Logger.getLogger("requests", null);
 	private final static Logger errors = Logger.getLogger("errors", null);
 	private DatagramSocket serverSocket;
+	private int packetNumber = 0;
 
 	public Server() {
 	    Runnable r = new Runnable() {
@@ -18,9 +19,9 @@ public class Server {
 	       Thread t = new Thread(r);
 	       t.start();
 	}
+	@SuppressWarnings("resource")
 	private void runWork() {
 	    byte[] receiveData = new byte[1024];
-        byte[] sendData = new byte[1024];
 
         try {
             serverSocket = new DatagramSocket(PORT);
@@ -29,31 +30,28 @@ public class Server {
             while (true) {
                 try {
                     DatagramPacket request = new DatagramPacket(receiveData, receiveData.length);
-                    serverSocket.receive(request);
-
-
-
-                    //TODO info on packet offsets and packet info, IE packetnumbers and such
-
+                    serverSocket.receive(request);                    
                     try {
+                    		System.out.println("\n server- PACKET RECEIVED. INFO: \n"
+                    				+ "srv- PACKET_NUMBER: " 
+                    				+ packetNumber 
+                    				+ "\n"
+                    				+ "srv- PACKET_LENGTH: " 
+                    				+ request.getLength() 
+                    				+ "\n" 
+                    				+ "srv- PACKET_OFFSET: " 
+                    				+ request.getOffset() 
+                    				+ "\n"
+                    				);
                         fos.write(receiveData, 0, receiveData.length);
+                        packetNumber++;
                     }catch(IOException e) {
-                        System.err.println("Error in writing to file from stream");
-                    }
+                        System.err.println("srv- Error in writing to file from stream");
+                    }                
 
-                    //String sentence = new String(request.getData());
-                    //System.out.println("SERVER: Packet Received: " + sentence);
-
-                    //InetAddress IPAddress = request.getAddress();
-                    //int port  = request.getPort();
-                    /*
-                    String upperSentence = sentence.toUpperCase();
-
-                    sendData = upperSentence.getBytes();
-
-                    DatagramPacket response = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-                    socket.send(response);
-                    */
+                 //   DatagramPacket response = new DatagramPacket(receiveData, receiveData.length);
+                 //   serverSocket.send(response);
+                    
                 }catch(Exception ex){ //TODO, catch specific exception types IOException | RuntimeException
                     errors.log(Level.SEVERE, ex.getMessage(), ex);
                 }
