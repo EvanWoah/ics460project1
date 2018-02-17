@@ -45,6 +45,11 @@ public class Server {
                     				);
                         fos.write(receiveData, 0, receiveData.length);
                         packetNumber++;
+                        
+                        // this code is kinda trashy 
+                        if (packetNumber == 63) {
+                        		System.out.println("Received file written in src's parent directory.");;
+                        }
                     }catch(IOException e) {
                         System.err.println("srv- Error in writing to file from stream");
                     }                
