@@ -22,7 +22,7 @@ public class Server {
 	       t.start();
 	}
 	private void runWork() {
-	    System.out.println("Server Started.");
+	    System.out.println("Server Started on port: " + PORT);
         createServerSocket(PORT);
         createFileStreamOut("receiveFile.jpg");
 

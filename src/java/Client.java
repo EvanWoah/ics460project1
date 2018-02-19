@@ -36,7 +36,7 @@ public class Client {
 
         System.out.println("Relative filepath to file you want client to send to server?");
 
-        //keep attempting
+        //keep attempting to create fileStream from user input
         while(!createFileStream(inFromUser.nextLine()));
 
 

@@ -13,7 +13,7 @@ public class Driver {
 	// TODO exception handling
 
 	private static void clientOrServerMethod(String cliOrServ) {
-	    while(!cliOrServ.equals("client") || !cliOrServ.equals("server")) {
+	    while(!cliOrServ.toLowerCase().equals("client") || !cliOrServ.toLowerCase().equals("server")) {
 	    		switch (cliOrServ) {
 	    		case "client":
 	        			Client client = new Client();
