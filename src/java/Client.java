@@ -13,10 +13,11 @@ public class Client {
 
     private int packetSize = 1024;
     private byte[] buffer = new byte[packetSize];
-    private byte[] receiveData = new byte[packetSize];
+    private int packetNum = 1;
+    private int totalPackets;
+    private int startOffset = 0;
 
-
-    private FileInputStream fileStream;
+    private FileInputStream fileStreamIn;
 
     public Client() {
         Runnable r = new Runnable() {
@@ -28,58 +29,66 @@ public class Client {
         Thread t = new Thread(r);
         t.start();
     }
-    @SuppressWarnings("resource")
     private void runWork() {
 
         createSocket();
         assignIPAddress();
 
+        System.out.println("Relative filepath to file you want client to send to server?");
+
+        //keep attempting
+        while(!createFileStream(inFromUser.nextLine()));
+
+
         try {
+            totalPackets = fileStreamIn.available()/packetSize; //get number of packets to send
 
-            System.out.println("Relative filepath to file you want client to send to server?");
-            createFileStream(inFromUser.nextLine());
+            while(fileStreamIn.available() != 0) {
+                System.out.println("client- Number of bytes left to send: " + fileStreamIn.available());
 
-            int packetNum = 0;
+                readFileStreamIntoBuffer();
 
+                createClientPacket();
 
+                sendClientPacket();
 
-            while(fileStream.available() != 0) {
-                System.out.println("client- Number of bytes left to send: " + fileStream.available());
-                try {
+                packetNum++;
 
-                    fileStream.read(buffer, 0, packetSize);
-                    sendPacket = new DatagramPacket(buffer, packetSize, IPAddress, PORT);
-                    try {
-                        System.out.println("client- Sending packet: " + packetNum);
-                        clientSocket.send(sendPacket);
-                        packetNum++;
-
-                    }catch(IOException io) {
-                        System.err.println("client- Error in sending packet");
-                    }
-                }catch (IOException e) {
-                    System.err.println("client- Error in reading file");
-                }
             }
+        } catch ( IOException x ) {
+            x.printStackTrace();
+        }
+        clientSocket.close();
 
-            DatagramPacket receivePacket =
-                new DatagramPacket(receiveData, receiveData.length);
+    }
 
-            clientSocket.receive(receivePacket);
-
-            String modifiedSentence = new String(receivePacket.getData());
-            System.out.println("CLIENT: FROM SERVER:" + modifiedSentence);
-
-            clientSocket.close();
-        } catch ( IOException ex ) {
-            ex.printStackTrace();
+    private void createClientPacket() {
+        sendPacket = new DatagramPacket(buffer, packetSize, IPAddress, PORT);
+    }
+    private void readFileStreamIntoBuffer() {
+        try {
+            fileStreamIn.read(buffer, 0, packetSize);
+        } catch ( IOException x ) {
+            x.printStackTrace();
         }
     }
-    private void createFileStream(String filePath) {
+    private void sendClientPacket() {
         try {
-            FileInputStream fis = new FileInputStream(filePath);
+            System.out.println("client- Sending packet: " + packetNum + "/" + totalPackets);
+            System.out.println("client- PACKET_OFFSET: " + startOffset + " - END: "+ (startOffset += packetSize));
+            clientSocket.send(sendPacket);
+
+        }catch(IOException io) {
+            System.err.println("client- Error in sending packet");
+        }
+    }
+    private boolean createFileStream(String filePath) {
+        try {
+            fileStreamIn = new FileInputStream(filePath);
+            return true;
         } catch ( FileNotFoundException x ) {
-            x.printStackTrace();
+            System.err.println("Unable to find file, please try again.");
+            return false;
         }
     }
     private void assignIPAddress() {

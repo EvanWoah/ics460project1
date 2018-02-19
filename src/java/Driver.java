@@ -1,35 +1,31 @@
-import java.util.Scanner;
+import java.util.*;
 
 public class Driver {
 	static Scanner clientOrServerInput = new Scanner(System.in);
 
 	public static void main(String args[]) {
+	    //Server server = new Server();
+	    //Client client = new Client();
 		System.out.println("Enter 'client' to run client instance, or 'server' to run server instance. ");
 		String cliOrServ = clientOrServerInput.nextLine();
 		clientOrServerMethod(cliOrServ);
 	}
 	// TODO exception handling
+
 	private static void clientOrServerMethod(String cliOrServ) {
-	    	try {
+	    while(!cliOrServ.equals("client") || !cliOrServ.equals("server")) {
 	    		switch (cliOrServ) {
-	            case "client":
+	    		case "client":
 	        			Client client = new Client();
-	        			break;
+	        			return;
 	            case "server":
 	            	 	Server server = new Server();
-	            	 	break;
+	            	 	return;
 	            default:
-	            	 	System.out.println("Invlid entry. \nEnter 'client' to run client instance, or 'server' to run server instance. ");
-	            	 	String cliOrServAgain = clientOrServerInput.nextLine();
-	        			clientOrServerMethod(cliOrServAgain);
-	        			break;		
-	    		}   			
-		}catch (Exception e){
-			System.out.println("Invlid entry. \nEnter 'client' to run client instance, or 'server' to run server instance. ");
-			String cliOrServAgain = clientOrServerInput.nextLine();    			
-			clientOrServerMethod(cliOrServAgain);
-		}
+	            	 	System.out.println("Invalid entry. \nEnter 'client' to run client instance, or 'server' to run server instance. ");
+	            	 	cliOrServ = clientOrServerInput.nextLine();
+	        			break;
+	    		}
+	    }
 	}
-	// System.out.println("File path: " + new
-	// File("fileToSend.txt").getAbsolutePath());
 }
