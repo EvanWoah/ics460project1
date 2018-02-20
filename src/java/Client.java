@@ -48,7 +48,8 @@ public class Client {
 
                 readFileStreamIntoBuffer();
 
-                createClientPacket();
+                //create the packet to be sent by filling it with information from the fileStream buffer
+                sendPacket = new DatagramPacket(buffer, packetSize, IPAddress, PORT);
 
                 sendClientPacket();
 
@@ -60,10 +61,6 @@ public class Client {
         }
         clientSocket.close();
 
-    }
-
-    private void createClientPacket() {
-        sendPacket = new DatagramPacket(buffer, packetSize, IPAddress, PORT);
     }
     private void readFileStreamIntoBuffer() {
         try {

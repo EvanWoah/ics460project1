@@ -22,17 +22,30 @@ public class Server {
 	       t.start();
 	}
 	private void runWork() {
-	    System.out.println("Server Started on port: " + PORT);
-        createServerSocket(PORT);
+	    createServerSocket(PORT);
         createFileStreamOut("receiveFile.jpg");
 
         while (true) {
                 createRequestPacket();
                 receivePacketIntoSocket();
+                printPacketInfo();
                 packetNumber++;
                 writeDataToStream();
         }
 
+    }
+    private void printPacketInfo() {
+        System.out.println("\nserver- PACKET RECEIVED. INFO: \n"
+            + "srv- PACKET_NUMBER: "
+            + packetNumber
+            + "\n"
+            + "srv- PACKET_LENGTH: "
+            + request.getLength()
+            + "\n"
+            + "srv- PACKET_OFFSET: "
+            + "START:" + startOffset + " - END: "+ (startOffset += request.getLength())
+            + "\n"
+            );
     }
     private void writeDataToStream() {
         try {
@@ -44,18 +57,6 @@ public class Server {
     private void receivePacketIntoSocket() {
         try {
             serverSocket.receive(request);
-            System.out.println("\nserver- PACKET RECEIVED. INFO: \n"
-                + "srv- PACKET_NUMBER: "
-                + packetNumber
-                + "\n"
-                + "srv- PACKET_LENGTH: "
-                + request.getLength()
-                + "\n"
-                + "srv- PACKET_OFFSET: "
-                + "START:" + startOffset + " - END: "+ (startOffset += request.getLength())
-                + "\n"
-                );
-
         } catch ( IOException x ) {
             x.printStackTrace();
         }
@@ -78,7 +79,9 @@ public class Server {
     private void createServerSocket(int port) {
         try {
             serverSocket = new DatagramSocket(port);
+            System.out.println("Server Started on port: " + PORT);
         } catch ( SocketException x ) {
+            System.err.println("Problem on creating server socket.");
             x.printStackTrace();
         }
     }
